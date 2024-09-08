@@ -1,0 +1,7 @@
+#mysql Connection
+mysql:
+  host: "localhost"
+  port: "8080"
+  username: "knockit"
+  password: "knockit"
+  database: "knockit"
