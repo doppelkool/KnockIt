@@ -9,6 +9,7 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 
 import java.sql.*;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -40,9 +41,15 @@ public class MySQLHandler extends MySQL {
 	public void createConfigurationValuesTable() {
 		String createTableSQL = "CREATE TABLE IF NOT EXISTS `configurationvalues` " +
 			"(" +
-			"    `deathHeight` int(11) NOT NULL DEFAULT -64 " +
+			"    `deathHeight` int(11) NOT NULL" +
 			")";
+		String insertDefaultValue = "INSERT INTO `configurationvalues` (`deathHeight`) " +
+			"SELECT -64 " +
+			"WHERE NOT EXISTS (" +
+			"    SELECT 1 FROM `configurationvalues` WHERE `deathHeight` = -64" +
+			");";
 		this.executeUpdateSQL(createTableSQL);
+		this.executeUpdateSQL(insertDefaultValue);
 	}
 
 	public void createLocationsTable() {
@@ -73,15 +80,24 @@ public class MySQLHandler extends MySQL {
 	}
 
 	public Locations getSetupLocations() {
-		return instance.getObjectFromDBbyParams("*", "locations", Map.of(), Locations.class);
+		List<Locations> locations = instance.getObjectsFromDBbyParams("*", "locations", Map.of(), Locations.class);
+		return locations.isEmpty() ? null: locations.get(0);
 	}
 
 	public ConfigurationValues getSetupValues() {
-		return instance.getObjectFromDBbyParams("*", "configurationvalues", Map.of(), ConfigurationValues.class);
+		Integer deathHeight = instance.getObjectFromDBbyParams("deathHeight", "configurationvalues", Map.of(), Integer.class);
+		return new ConfigurationValues(deathHeight);
+	}
+
+	public void createDefaultStatsForPlayer(String playerUUID) {
+		String createDefaultStatsSQL = "INSERT IGNORE INTO stats " +
+			"(playerUUID) " +
+			"VALUES ('" + playerUUID + "')";
+		this.executeUpdateSQL(createDefaultStatsSQL);
 	}
 
 	public Optional<PlayerStats> getPlayerStats(String uuid) {
-		PlayerStats objectFromDBbyParams = instance.getObjectFromDBbyParams("*", "stats", Map.of("playerUUID", uuid), PlayerStats.class);
-		return Optional.ofNullable(objectFromDBbyParams);
+		PlayerStats objectsFromDBbyParams = instance.getObjectFromDBbyParams("playerUUID,kills,deaths,coins,tokens", "stats", Map.of("playerUUID", uuid), PlayerStats.class);
+		return Optional.ofNullable(objectsFromDBbyParams);
 	}
 }

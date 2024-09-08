@@ -138,6 +138,7 @@ public abstract class MySQL {
 			cleanup(c, pst, rs);
 		}
 		return null;
+
 	}
 
 	protected <T> List<T> getObjectsFromDBbyParams(String dbLabel, String tableName, Map<String, String> params, Class<T> clazz) {
@@ -149,6 +150,7 @@ public abstract class MySQL {
 		ResultSet rs = null;
 		try {
 			c = this.ds.getConnection();
+			Bukkit.getLogger().info("adwads " + a.toString());
 			pst = c.prepareStatement(a.toString());
 			rs = pst.executeQuery();
 			while (rs.next()) {
@@ -173,8 +175,9 @@ public abstract class MySQL {
 			sqlString
 				.append(paramPair.getKey())
 				.append("=")
+				.append("'")
 				.append(paramPair.getValue())
-				.append(",");
+				.append("'");
 			if (entries.indexOf(paramPair) != entries.size() - 1)
 				sqlString.append(" AND ");
 		}

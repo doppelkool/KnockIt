@@ -24,8 +24,11 @@ public class PlayerStats {
 	private int tokens;
 
 
+	public static void createDefaultStatsForPlayer(String playerUUID) {
+		MySQLHandler.getInstance().createDefaultStatsForPlayer(playerUUID);
+	}
+
 	public static Optional<PlayerStats> loadStats(String playerUUID) {
 		return MySQLHandler.getInstance().getPlayerStats(playerUUID);
 	}
-
 }

@@ -28,8 +28,8 @@ public class StatsCommand implements CommandExecutor {
 		Optional<PlayerStats> statsOpt = PlayerStats.loadStats(pl.getUniqueId().toString());
 
 		if(statsOpt.isEmpty()) {
-			ErrorHandler.handleErrorToConsole();
-			ErrorHandler.handleErrorToPlayer();
+			ErrorHandler.handleStatsErrorToConsole(pl.getName());
+			ErrorHandler.handleStatsErrorToPlayer(pl);
 			return true;
 		}
 
