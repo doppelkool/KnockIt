@@ -13,17 +13,18 @@ import java.sql.SQLException;
  */
 public class ErrorHandler {
 
-	public static final String PLUGIN_PREFIX = ChatColor.DARK_GRAY + "[" + ChatColor.GRAY + "KNOCKIT" + ChatColor.DARK_GRAY + "]: " + ChatColor.RED;
+	public static final String PLUGIN_PREFIX = ChatColor.DARK_GRAY + "[" + ChatColor.GRAY + "KNOCKIT" + ChatColor.DARK_GRAY + "]: " + ChatColor.GRAY;
+	public static final String ERROR_PREFIX = ChatColor.DARK_GRAY + "[" + ChatColor.GRAY + "KNOCKIT" + ChatColor.DARK_GRAY + "]: " + ChatColor.RED;
 
 
 	public static void handleSQLError(SQLException ex) {
-		Main.getPlugin().getLogger().info(PLUGIN_PREFIX + "Es ist ein SQL-Fehler aufgetreten");
+		Main.getPlugin().getLogger().info(ERROR_PREFIX + "Es ist ein SQL-Fehler aufgetreten");
 		ex.printStackTrace();
 	}
 	public static void handleStatsErrorToConsole(String playerName) {
-		Main.getPlugin().getLogger().info(PLUGIN_PREFIX + "Es ist ein Fehler beim Abrufen der Stats vom Spieler " + playerName + " aufgetreten");
+		Main.getPlugin().getLogger().info(ERROR_PREFIX + "Es ist ein Fehler beim Abrufen der Stats vom Spieler " + playerName + " aufgetreten");
 	}
 	public static void handleStatsErrorToPlayer(Player pl) {
-		pl.sendMessage(PLUGIN_PREFIX + "Es ist ein Fehler beim Abrufen deiner Stats aufgetreten, melde dies bitte einem Administrator");
+		pl.sendMessage(ERROR_PREFIX + "Es ist ein Fehler beim Abrufen deiner Stats aufgetreten, melde dies bitte einem Administrator");
 	}
 }

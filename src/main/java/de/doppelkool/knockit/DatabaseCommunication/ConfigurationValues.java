@@ -16,4 +16,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ConfigurationValues {
 	private Integer deathHeight;
+	private boolean setupFinished;
 }

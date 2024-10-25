@@ -4,14 +4,9 @@ import de.doppelkool.knockit.DatabaseCommunication.ConfigurationValueRepository;
 import de.doppelkool.knockit.DatabaseCommunication.LocationRepository;
 import de.doppelkool.knockit.DatabaseCommunication.PlayerStatsRepository;
 import de.doppelkool.knockit.DatabaseCommunication.Repository;
-import de.doppelkool.knockit.commands.FinishCommand;
-import de.doppelkool.knockit.commands.SetHeightCommand;
-import de.doppelkool.knockit.commands.SetSpawnCommand;
-import de.doppelkool.knockit.commands.StatsCommand;
+import de.doppelkool.knockit.commands.*;
 import de.doppelkool.knockit.errorhandling.ErrorHandler;
-import de.doppelkool.knockit.listener.FallDamageListener;
-import de.doppelkool.knockit.listener.GameJoinListener;
-import de.doppelkool.knockit.listener.SetupJoinListener;
+import de.doppelkool.knockit.listener.*;
 import de.doppelkool.knockit.service.GameDesignService;
 import de.doppelkool.knockit.service.SetupService;
 import de.doppelkool.knockit.ConfigHandling.ConfigHandler;
@@ -19,6 +14,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Server;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -57,6 +54,7 @@ public class Main extends JavaPlugin {
 		prepareRepositorys();
 
 		if (SetupService.getInstance().isSetup()) {
+			ConfigurationValueRepository.getInstance().update(ConfigurationValueRepository.DBConfigValueNames.setupFinished, true);
 			registerGameEvents();
 		} else {
 			registerSetupEvents();
@@ -77,37 +75,33 @@ public class Main extends JavaPlugin {
 	}
 
 	private void prepareDB() {
-		Bukkit.getLogger().info("KnockIt - DBZero");
-		try (Connection connection = Repository.getConnection();
+		try (Connection connection = Repository.getSetupConnection();
 		     Statement statement = connection.createStatement();
 		     InputStream inputStream = getResource("knockit.sql");
 		     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-			Bukkit.getLogger().info("KnockIt - DBFirst");
 
 			StringBuilder sql = new StringBuilder();
 			String line;
 
-			// Read the SQL file line by line
 			while ((line = reader.readLine()) != null) {
-				// Append the line to the SQL statement
 				sql.append(line);
 				sql.append(System.lineSeparator());
 			}
-			Bukkit.getLogger().info("KnockIt - AfterAppend");
 
-			// Execute the SQL statements
-			String[] statements = sql.toString().split(";"); // Split by semicolon
+			String[] statements = sql.toString().split(";");
 			for (String stmt : statements) {
-				Bukkit.getLogger().info("KnockIt - Statement: " + stmt);
-				stmt = stmt.trim(); // Trim whitespace
+
+				stmt = stmt
+					.trim()
+					//PLACEHOLDERS
+					.replace("%DATABASE_NAME%", ConfigHandler.MYSQL_DATABASE);
+				Bukkit.getLogger().info(stmt);
 				if (!stmt.isEmpty()) {
-					statement.execute(stmt); // Execute the SQL statement
-					Bukkit.getLogger().info("KnockIt - After execute");
+					statement.execute(stmt);
 				}
 			}
 
-			System.out.println("SQL file executed successfully!");
-
+			Bukkit.getLogger().info(ErrorHandler.PLUGIN_PREFIX + "Database Schema prepared successfully");
 		} catch (SQLException e) {
 			System.err.println("SQL Exception: " + e.getMessage());
 		} catch (IOException e) {
@@ -122,12 +116,14 @@ public class Main extends JavaPlugin {
 	}
 
 	private void registerSetupEvents() {
-		pluginManager.registerEvents(new SetupJoinListener(), plugin);
+		pluginManager.registerEvents(SetupListeners.setupJoinListener, plugin);
 	}
 
 	private void registerGameEvents() {
-		pluginManager.registerEvents(new GameJoinListener(), plugin);
-		pluginManager.registerEvents(new FallDamageListener(), plugin);
+		pluginManager.registerEvents(GameListeners.gameJoinListener, plugin);
+		pluginManager.registerEvents(GameListeners.fallDamageListener, plugin);
+		pluginManager.registerEvents(GameListeners.onDeathListener, plugin);
+		pluginManager.registerEvents(GameListeners.onMoveListener, plugin);
 	}
 
 	private void registerCommands() {
@@ -135,5 +131,16 @@ public class Main extends JavaPlugin {
 		getCommand("setspawn").setExecutor(new SetSpawnCommand());
 		getCommand("setheight").setExecutor(new SetHeightCommand());
 		getCommand("finish").setExecutor(new FinishCommand());
+	}
+
+	public static class SetupListeners {
+		public static final SetupJoinListener setupJoinListener = new SetupJoinListener();
+	}
+
+	public static class GameListeners {
+		public static final GameJoinListener gameJoinListener = new GameJoinListener();
+		public static final FallDamageListener fallDamageListener = new FallDamageListener();
+		public static final OnDeathListener onDeathListener = new OnDeathListener();
+		public static final OnMoveListener onMoveListener = new OnMoveListener();
 	}
 }

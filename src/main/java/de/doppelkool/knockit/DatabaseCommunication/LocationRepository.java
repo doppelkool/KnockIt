@@ -30,8 +30,6 @@ public class LocationRepository extends Repository {
 	}
 
 	public void save(DBLocationNames locationName, Location loc) {
-		updateLocal(locationName, loc);
-
 		String query = "INSERT INTO locations VALUES (?,?,?,?,?,?,?)";
 		PreparedStatement preparedStatement = null;
 
@@ -54,11 +52,10 @@ public class LocationRepository extends Repository {
 				ErrorHandler.handleSQLError(ex);
 			}
 		}
+		updateLocal(locationName);
 	}
 
 	public void update(DBLocationNames locationName, Location loc) {
-		updateLocal(locationName, loc);
-
 		String query = "UPDATE locations SET " +
 			"worldName = ?, " +
 			"X = ?, " +
@@ -88,11 +85,13 @@ public class LocationRepository extends Repository {
 				ErrorHandler.handleSQLError(ex);
 			}
 		}
+		updateLocal(locationName);
 	}
 
-	private void updateLocal(DBLocationNames locationName, Location loc) {
+	public void updateLocal(DBLocationNames locationName) {
+		Optional<KnockItLocation> configValue = findByName(locationName);
 		if(locationName.equals(DBLocationNames.SPAWNPOINT)) {
-			spawnpoint = new KnockItLocation(loc);
+			spawnpoint = configValue.orElse(null);
 		}
 	}
 

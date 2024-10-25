@@ -2,12 +2,15 @@ package de.doppelkool.knockit.commands;
 
 import de.doppelkool.knockit.DatabaseCommunication.ConfigurationValueRepository;
 import de.doppelkool.knockit.DatabaseCommunication.LocationRepository;
+import de.doppelkool.knockit.service.SetupService;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 /**
  * Class Description
@@ -20,6 +23,11 @@ public class SetSpawnCommand implements CommandExecutor {
 	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
 		if(!(sender instanceof Player pl)) {
 			sender.sendMessage("Diesen Befehl kannst du nicht als Console ausführen");
+			return true;
+		}
+
+		if (ConfigurationValueRepository.getInstance().getConfigValues().isSetupFinished()) {
+			sender.sendMessage("Dieser Befehl ist nicht bekannt");
 			return true;
 		}
 

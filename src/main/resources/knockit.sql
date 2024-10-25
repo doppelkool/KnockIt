@@ -2,9 +2,16 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-CREATE TABLE IF NOT EXISTS `configurationvalues` (
-    `deathHeight` int(11) NOT NULL DEFAULT -64
+CREATE DATABASE IF NOT EXISTS `%DATABASE_NAME%`;
+USE `%DATABASE_NAME%`;
+
+CREATE TABLE `configurationvalues` (
+   `deathHeight` int(11) NOT NULL DEFAULT -64,
+   `setupFinished` bit(1) NOT NULL DEFAULT b'0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `configurationvalues` (`deathHeight`, `setupFinished`) VALUES
+    (-64, b'0');
 
 CREATE TABLE IF NOT EXISTS `locations` (
     `locationName` varchar(200) NOT NULL,

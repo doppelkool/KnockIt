@@ -2,13 +2,18 @@ package de.doppelkool.knockit.commands;
 
 import de.doppelkool.knockit.ConfigHandling.KnockItLocation;
 import de.doppelkool.knockit.DatabaseCommunication.ConfigurationValueRepository;
+import de.doppelkool.knockit.DatabaseCommunication.ConfigurationValues;
 import de.doppelkool.knockit.DatabaseCommunication.LocationRepository;
+import de.doppelkool.knockit.service.SetupService;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 /**
  * Class Description
@@ -23,6 +28,11 @@ public class SetHeightCommand implements CommandExecutor {
 			return true;
 		}
 
+		if (ConfigurationValueRepository.getInstance().getConfigValues().isSetupFinished()) {
+			sender.sendMessage("Dieser Befehl ist nicht bekannt");
+			return true;
+		}
+
 		int deathHeight = pl.getLocation().getBlockY();
 
 		KnockItLocation spawnpoint = LocationRepository.getInstance().getSpawnpoint();
@@ -31,18 +41,10 @@ public class SetHeightCommand implements CommandExecutor {
 			return true;
 		}
 
-		boolean alreadyExist = ConfigurationValueRepository.getInstance().getConfigValues().getDeathHeight() != null;
-		if (alreadyExist) {
-			ConfigurationValueRepository
-				.getInstance()
-				.update(ConfigurationValueRepository.DBConfigValueNames.deathHeight, deathHeight);
-			pl.sendMessage("Die DeathHeight wurde erfolgreich geändert");
-		} else {
-			ConfigurationValueRepository
-				.getInstance()
-				.save(ConfigurationValueRepository.DBConfigValueNames.deathHeight, deathHeight);
-			pl.sendMessage("Die DeathHeight wurde erfolgreich gesetzt");
-		}
+		ConfigurationValueRepository
+			.getInstance()
+			.update(ConfigurationValueRepository.DBConfigValueNames.deathHeight, deathHeight);
+		pl.sendMessage("Die DeathHeight wurde erfolgreich geändert");
 
 		return true;
 	}

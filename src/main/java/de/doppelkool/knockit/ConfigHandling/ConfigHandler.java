@@ -1,5 +1,8 @@
 package de.doppelkool.knockit.ConfigHandling;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Class Description
  *
@@ -12,7 +15,6 @@ public class ConfigHandler extends YMLFileHandler {
 	public static String MYSQL_USERNAME;
 	public static String MYSQL_PASSWORD;
 	public static String MYSQL_DATABASE;
-
 
 	public ConfigHandler() {
 		super("config");

@@ -3,18 +3,17 @@ package de.doppelkool.knockit.commands;
 import de.doppelkool.knockit.ConfigHandling.KnockItLocation;
 import de.doppelkool.knockit.DatabaseCommunication.ConfigurationValueRepository;
 import de.doppelkool.knockit.DatabaseCommunication.LocationRepository;
-import de.doppelkool.knockit.Main;
-import de.doppelkool.knockit.listener.SetupJoinListener;
 import de.doppelkool.knockit.service.SetupService;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 /**
  * Class Description
@@ -30,6 +29,11 @@ public class FinishCommand implements CommandExecutor {
 			return true;
 		}
 
+		if (ConfigurationValueRepository.getInstance().getConfigValues().isSetupFinished()) {
+			sender.sendMessage("Dieser Befehl ist nicht bekannt");
+			return true;
+		}
+
 		Player playerToSetup = SetupService.getInstance().getPlayerToSetup();
 
 		if(!playerToSetup.getUniqueId().toString().equals(pl.getUniqueId().toString())) {
@@ -37,10 +41,10 @@ public class FinishCommand implements CommandExecutor {
 			return true;
 		}
 
-		if (args.length == 1) {
-			if (args[0].equalsIgnoreCase("yes")) {
-				pl.kickPlayer("Setup erfolgreich!");
-			}
+		if (args.length == 1
+				&& args[0].equalsIgnoreCase("yes")) {
+			pl.kickPlayer("Setup erfolgreich!");
+			SetupService.getInstance().finishSetupAndStartGame();
 			return true;
 		}
 
@@ -56,12 +60,8 @@ public class FinishCommand implements CommandExecutor {
 		yesButton.setBold(true);
 		yesButton.setColor(ChatColor.GREEN);
 
-		TextComponent message = new TextComponent();
-		message.addExtra(yesButton);
-
-		pl.spigot().sendMessage(message);
+		pl.spigot().sendMessage(yesButton);
 
 		return true;
 	}
-
 }

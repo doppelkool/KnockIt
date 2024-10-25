@@ -29,32 +29,13 @@ public class ConfigurationValueRepository extends Repository {
 		Optional<Object> optDeathHeight = findByName(DBConfigValueNames.deathHeight);
 		optDeathHeight.ifPresent(
 			o -> configValues.setDeathHeight((Integer) o));
-	}
 
-	public void save(DBConfigValueNames configName, Object value) {
-		updateLocal(configName, value);
-
-		String query = "INSERT INTO configurationvalues VALUES (?)";
-		PreparedStatement preparedStatement = null;
-
-		try {
-			preparedStatement = getConnection().prepareStatement(query);
-			preparedStatement.setObject(1, value);
-			preparedStatement.executeUpdate();
-		} catch (SQLException ex) {
-			ErrorHandler.handleSQLError(ex);
-		} finally {
-			try {
-				if (preparedStatement != null) preparedStatement.close();
-			} catch (SQLException ex) {
-				ErrorHandler.handleSQLError(ex);
-			}
-		}
+		Optional<Object> optsetupFinished = findByName(DBConfigValueNames.setupFinished);
+		optsetupFinished.ifPresent(
+			o -> configValues.setSetupFinished((boolean) o));
 	}
 
 	public void update(DBConfigValueNames configName, Object value) {
-		updateLocal(configName, value);
-
 		String query = "UPDATE configurationvalues SET " + configName + " = ? ";
 		PreparedStatement preparedStatement = null;
 
@@ -71,11 +52,16 @@ public class ConfigurationValueRepository extends Repository {
 				ErrorHandler.handleSQLError(ex);
 			}
 		}
+		updateLocal(configName);
 	}
 
-	private void updateLocal(DBConfigValueNames configName, Object value) {
+	public void updateLocal(DBConfigValueNames configName) {
+		Optional<Object> configValue = findByName(configName);
 		if(configName.equals(DBConfigValueNames.deathHeight)) {
-			configValues.setDeathHeight((Integer) value);
+			configValues.setDeathHeight((Integer) configValue.get());
+		}
+		if(configName.equals(DBConfigValueNames.setupFinished)) {
+			configValues.setSetupFinished((boolean) configValue.get());
 		}
 	}
 
@@ -88,7 +74,7 @@ public class ConfigurationValueRepository extends Repository {
 						.prepareStatement(query)
 						.executeQuery();
 			if (resultSet.next()) {
-				return Optional.of(resultSet.getInt(1));
+				return Optional.of(resultSet.getObject(1));
 			}
 		} catch (SQLException ex) {
 			ErrorHandler.handleSQLError(ex);
@@ -103,7 +89,10 @@ public class ConfigurationValueRepository extends Repository {
 	}
 
 	public enum DBConfigValueNames {
-		deathHeight;
+		deathHeight,
+		setupFinished,
+
+		;
 
 		@Override
 		public String toString() {
