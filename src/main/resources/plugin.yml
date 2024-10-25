@@ -6,8 +6,21 @@ author: doppelkool
 api-version: 1.20
 website: https://www.github.com/doppelkool
 libraries:
-  - com.zaxxer:HikariCP:5.1.0
+  - mysql:mysql-connector-java:8.0.33
 commands:
+  finish:
+    usage: /<command>
+    description: Finishes the setup of the plugin
+  setheight:
+    usage: /<command>
+    description: Sets the height on which the player die
+  setspawn:
+    usage: /<command>
+    description: Sets the spawnpoint on which the player spawn
   stats:
     usage: /<command>
     description: Displays the stats of the player
+permissions:
+  knockit.setup:
+    description: Allows the player to setup the plugin
+    default: false

@@ -1,7 +1,8 @@
 package de.doppelkool.knockit.commands;
 
 import de.doppelkool.knockit.errorhandling.ErrorHandler;
-import de.doppelkool.knockit.service.PlayerStats;
+import de.doppelkool.knockit.DatabaseCommunication.PlayerStats;
+import de.doppelkool.knockit.service.PlayerStatsService;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -25,7 +26,7 @@ public class StatsCommand implements CommandExecutor {
 			return true;
 		}
 
-		Optional<PlayerStats> statsOpt = PlayerStats.loadStats(pl.getUniqueId().toString());
+		Optional<PlayerStats> statsOpt = PlayerStatsService.getInstance().loadStats(pl.getUniqueId().toString());
 
 		if(statsOpt.isEmpty()) {
 			ErrorHandler.handleStatsErrorToConsole(pl.getName());
